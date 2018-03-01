@@ -9,12 +9,14 @@ import tl_layer
 import input_data
 
 
-def inference(images, batch_size, n_classes):
+def inference(images, batch_size):
     '''Build the model
     Args:
         images: image batch, 4D tensor, tf.float32, [batch_size, width, height, channels]
+        batch_size: batch_size
     Returns:
-        output tensor with the computed logits, float, [batch_size, n_classes]
+        y: output tensor with the computed logits, float, [batch_size, n_classes]
+        network: network
     '''
     network = tl_layer.InputLayer(images, name='input')
     network = tl_layer.Conv2dLayer(network,
@@ -126,7 +128,7 @@ def evaluation(logits, labels):
     """
     with tf.variable_scope('accuracy') as scope:
         correct_prediction = tf.equal(tf.cast(tf.argmax(logits, 1), tf.int32),
-                                      labels)  # tf.cast(tf.argmax(labels, 1), tf.int32)
+                                      labels) 
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
         tf.summary.scalar(scope.name + '/accuracy', accuracy)
 

@@ -11,7 +11,6 @@ import input_data
 import model
 import tl_files
 
-N_CLASSES = 2
 IMG_W = 208  # resize the image, if the input image is too large, training will be very slow.
 IMG_H = 208
 Train_Proportion = 0.8  # Proportion of the data to be used for training
@@ -55,7 +54,7 @@ def main(_):
                                                                   IMG_W,
                                                                   IMG_H,
                                                                   batch_size)
-    train_logits_run, net = model.inference(train_batch_run, batch_size, N_CLASSES)
+    train_logits_run, net = model.inference(train_batch_run, batch_size)
     train_loss_run = model.losses(train_logits_run, train_label_batch_run)
     train_op_run = model.trainning(train_loss_run, learning_rate)
     # train_acc_run = model.evaluation(train_logits_run, train_label_batch_run)

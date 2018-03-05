@@ -8,8 +8,23 @@ import os
 from sklearn.model_selection import train_test_split
 
 
-# Helper function to load images information (image_path, image_label)
-def load_image_path(data_path, valid_proportion, test_proportion):
+def load_image_path(data_path, valid_proportion, test_proportion, pos_path="1/", neg_path="0/"):
+    """
+    Args:
+        data_path: list,数据所在文件夹，最后有一杠
+        valid_proportion: float，验证集所占百分比，小数，如0.1
+        test_proportion: float，测试集所占百分比
+        pos_path: str,正样本所在文件夹
+        neg_path: str,负样本所在文件夹
+    Returns:
+        x_train: list，dtype=str，图片路径
+        y_train: list, dtype=int
+        x_valid: list，dtype=str，图片路径
+        y_valid: list, dtype=int
+        x_test: list，dtype=str，图片路径
+        y_test: list, dtype=int
+    """
+
     pos_image_path = []
     pos_labels = []
 
@@ -21,22 +36,16 @@ def load_image_path(data_path, valid_proportion, test_proportion):
 
     np.random.seed(0)
 
-    pos_path = data_path + "1/"
+    pos_path = data_path + pos_path
     for img in tf.gfile.ListDirectory(pos_path):
-        # if '.bmp' not in img:
-        #    continue
-
         label = 1
 
         path = os.path.join(pos_path, img)
         pos_image_path.append(path)
         pos_labels.append(label)
 
-    neg_path = data_path + "0/"
+    neg_path = data_path + neg_path
     for img in tf.gfile.ListDirectory(neg_path):
-        # if '.bmp' not in img:
-        #    continue
-
         label = 0
 
         path = os.path.join(neg_path, img)
@@ -53,18 +62,28 @@ def load_image_path(data_path, valid_proportion, test_proportion):
     ful_labels = list(temp[:, 1])
     ful_labels = [int(i) for i in ful_labels]
 
-    x_train, x_valid, y_train, y_valid = train_test_split(ful_image_path, ful_labels,
-                                                          test_size=(valid_proportion + test_proportion),
-                                                          stratify=ful_labels, random_state=1)
-    x_valid, x_test, y_valid, y_test = train_test_split(x_valid, y_valid, test_size=test_proportion / (
-            valid_proportion + test_proportion), stratify=y_valid, random_state=1)
+    x_valid = []
+    y_valid = []
+    x_test = []
+    y_test = []
+    from sklearn.model_selection import train_test_split
+    if not valid_proportion == 0:
+        x_train, x_valid, y_train, y_valid = train_test_split(ful_image_path, ful_labels,
+                                                              test_size=(valid_proportion + test_proportion),
+                                                              stratify=ful_labels, random_state=1)
+        if not test_proportion == 0:
+            x_valid, x_test, y_valid, y_test = train_test_split(x_valid, y_valid, test_size=test_proportion / (
+                    valid_proportion + test_proportion), stratify=y_valid, random_state=1)
+    else:
+        x_train = ful_image_path
+        y_train = ful_labels
 
     print("train_num: %d ,pos_num: %d , neg_num: %d" % (
-        len(y_train), count_pos(y_train), len(y_train) - count_pos(y_train)))
+        len(y_train), y_train.count(1), len(y_train) - y_train.count(1)))
     print("valid_num: %d ,pos_num: %d , neg_num: %d" % (
-        len(y_valid), count_pos(y_valid), len(y_valid) - count_pos(y_valid)))
+        len(y_valid), y_valid.count(1), len(y_valid) - y_valid.count(1)))
     print("test_num : %d ,pos_num: %d , neg_num: %d" % (
-        len(y_test), count_pos(y_test), len(y_test) - count_pos(y_test)))
+        len(y_test), y_test.count(1), len(y_test) - y_test.count(1)))
 
     return x_train, y_train, x_valid, y_valid, x_test, y_test
 

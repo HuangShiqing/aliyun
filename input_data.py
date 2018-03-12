@@ -5,7 +5,6 @@ import numpy as np
 import argparse
 import os
 
-from sklearn.model_selection import train_test_split
 
 
 def load_image_path(data_path, valid_proportion, test_proportion, pos_path="1/", neg_path="0/"):
